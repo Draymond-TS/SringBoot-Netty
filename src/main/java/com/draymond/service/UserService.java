@@ -23,5 +23,5 @@ public interface UserService {
     public Users saveUser(Users user);
 
 
-
+    Users updateUserInfo(Users user);
 }
