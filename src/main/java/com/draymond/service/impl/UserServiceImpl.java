@@ -1,11 +1,10 @@
 package com.draymond.service.impl;
 
 
+import com.draymond.enums.MsgSignFlagEnum;
 import com.draymond.enums.SearchFriendsStatusEnum;
-import com.draymond.mapper.FriendsRequestMapper;
-import com.draymond.mapper.MyFriendsMapper;
-import com.draymond.mapper.UsersExtMapper;
-import com.draymond.mapper.UsersMapper;
+import com.draymond.mapper.*;
+import com.draymond.netty.ChatMsg;
 import com.draymond.pojo.*;
 import com.draymond.service.UserService;
 import com.draymond.utils.FastDFSClient;
@@ -43,6 +42,8 @@ public class UserServiceImpl implements UserService {
 	@Autowired
 	private FriendsRequestMapper friendsRequestMapper;
 
+	@Autowired
+	private ChatMsgMapper chatMsgMapper;
 
 	@Autowired
 	private UsersExtMapper usersExtMapper;
@@ -225,6 +226,24 @@ public class UserServiceImpl implements UserService {
 		return myFirends;
 	}
 
+	@Transactional(propagation = Propagation.REQUIRED)
+	@Override
+	public String saveMsg(ChatMsg chatMsg) {
+
+		com.draymond.pojo.ChatMsg msgDB = new com.draymond.pojo.ChatMsg();
+		String msgId = UUID.randomUUID().toString();
+		msgDB.setId(msgId);
+		msgDB.setAcceptUserId(chatMsg.getReceiverId());
+		msgDB.setSendUserId(chatMsg.getSenderId());
+		msgDB.setCreateTime(new Date());
+		msgDB.setSignFlag(MsgSignFlagEnum.unsign.type);
+		msgDB.setMsg(chatMsg.getMsg());
+
+		chatMsgMapper.insert(msgDB);
+
+		return msgId;
+	}
+
 	@Transactional(propagation = Propagation.SUPPORTS)
 	public Users queryUserById(String userId) {
 		return userMapper.selectByPrimaryKey(userId);
@@ -232,5 +251,11 @@ public class UserServiceImpl implements UserService {
 
 
 
+
+	@Transactional(propagation = Propagation.REQUIRED)
+	@Override
+	public void updateMsgSigned(List<String> msgIdList) {
+		usersExtMapper.batchUpdateMsgSigned(msgIdList);
+	}
 
 }

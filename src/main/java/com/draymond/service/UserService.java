@@ -1,5 +1,6 @@
 package com.draymond.service;
 
+import com.draymond.netty.ChatMsg;
 import com.draymond.pojo.Users;
 import com.draymond.vo.FriendRequestVO;
 import com.draymond.vo.MyFriendsVO;
@@ -68,4 +69,15 @@ public interface UserService {
      * @Description: 查询好友列表
      */
     public List<MyFriendsVO> queryMyFriends(String userId);
+
+
+    /**
+     * @Description: 保存聊天消息到数据库
+     */
+    public String saveMsg(ChatMsg chatMsg);
+
+    /**
+     * @Description: 批量签收消息
+     */
+    public void updateMsgSigned(List<String> msgIdList);
 }
