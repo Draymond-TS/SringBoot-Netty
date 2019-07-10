@@ -1,17 +1,23 @@
 package com.draymond.service.impl;
 
 
+import com.draymond.enums.MsgActionEnum;
 import com.draymond.enums.MsgSignFlagEnum;
 import com.draymond.enums.SearchFriendsStatusEnum;
 import com.draymond.mapper.*;
 import com.draymond.netty.ChatMsg;
+import com.draymond.netty.DataContent;
+import com.draymond.netty.UserChannelRel;
 import com.draymond.pojo.*;
 import com.draymond.service.UserService;
 import com.draymond.utils.FastDFSClient;
 import com.draymond.utils.FileUtils;
+import com.draymond.utils.JsonUtils;
 import com.draymond.utils.QRCodeUtils;
 import com.draymond.vo.FriendRequestVO;
 import com.draymond.vo.MyFriendsVO;
+import io.netty.channel.Channel;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -205,7 +211,16 @@ public class UserServiceImpl implements UserService {
 		saveFriends(acceptUserId, sendUserId);
 		deleteFriendRequest(sendUserId, acceptUserId);
 
+		Channel sendChannel = UserChannelRel.get(sendUserId);
+		if (sendChannel != null) {
+			// 使用websocket主动推送消息到请求发起者，更新他的通讯录列表为最新
+			DataContent dataContent = new DataContent();
+			dataContent.setAction(MsgActionEnum.PULL_FRIEND.type);
 
+			sendChannel.writeAndFlush(
+					new TextWebSocketFrame(
+							JsonUtils.objectToJson(dataContent)));
+		}
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED)
@@ -258,4 +273,16 @@ public class UserServiceImpl implements UserService {
 		usersExtMapper.batchUpdateMsgSigned(msgIdList);
 	}
 
+
+	@Transactional(propagation = Propagation.SUPPORTS)
+	@Override
+	public List<com.draymond.pojo.ChatMsg> getUnReadMsgList(String acceptUserId) {
+
+		ChatMsgExample chatExample = new ChatMsgExample();
+		chatExample.createCriteria().andSignFlagEqualTo(0).andAcceptUserIdEqualTo(acceptUserId);
+
+		List<com.draymond.pojo.ChatMsg> result = chatMsgMapper.selectByExample(chatExample);
+
+		return result;
+	}
 }
