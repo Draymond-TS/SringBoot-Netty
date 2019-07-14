@@ -12,7 +12,11 @@
     <artifactId>draymond-wechat</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>draymond-wechat</name>
-    <description>Demo project for Spring Boot</description>
+
+    <!--默认启动方式。jar打包，springBoot内置tomcat-->
+    <!--<packaging>jar</packaging>-->
+    <packaging>war</packaging>
+
 
     <properties>
         <java.version>1.8</java.version>
@@ -22,6 +26,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                    <groupId>org.springframework.boot</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -45,14 +55,12 @@
         </dependency>
 
 
-
         <!--netty-->
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
             <version>4.1.25.Final</version>
         </dependency>
-
 
 
         <!-- apache 工具类 -->
@@ -81,8 +89,6 @@
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
-
-
 
 
         <!--pagehelper -->
@@ -117,13 +123,48 @@
             <version>3.3.3</version>
         </dependency>
 
+
+        <!-- SDK的依赖-->
+        <dependency>
+            <groupId>com.gexin.platform</groupId>
+            <artifactId>gexin-rp-sdk-http</artifactId>
+            <version>4.0.1.17</version>
+        </dependency>
+
+        <!--外置tomcat配置的servlet,为了打成war包-->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+
     </dependencies>
+
+
+    <repositories>
+        <repository>
+            <id>getui-nexus</id>
+            <url>http://mvn.gt.igexin.com/nexus/content/repositories/releases</url>
+        </repository>
+    </repositories>
+
 
     <build>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.draymond.DraymondWechatApplication</mainClass>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.mybatis.generator</groupId>

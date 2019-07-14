@@ -20,7 +20,7 @@ import java.util.List;
 
 public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
 
-    private static ChannelGroup users=new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
+    public static ChannelGroup users=new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, TextWebSocketFrame msg)
@@ -100,7 +100,7 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
             }
 
         } else if (action == MsgActionEnum.KEEPALIVE.type) {
-            //  2.4  心跳类型的消息
+            //    心跳类型的消息
             System.out.println("收到来自channel为[" + currentChannel + "]的心跳包...");
         }
     }
